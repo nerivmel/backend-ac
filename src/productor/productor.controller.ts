@@ -1,20 +1,20 @@
 import {
   Controller,
   Get,
-  //Post,
-  //Put,
   Delete,
   Param,
   Body,
   Post,
+  Put,
   //Body,
 } from '@nestjs/common';
-//import { CreateProductorDTO } from './productor.create.dto';
+import { CreateProductorDTO } from './productor.create.dto';
 //import { ProductorDTO } from './productor.dto';
 import { ProductorService } from './productor.service';
 //import { Productor } from './productor.entity';
 import { ApiTags } from '@nestjs/swagger';
-import { ProductorDTO } from './productor.dto';
+//import { Productor } from './productor.entity';
+//import { ProductorDTO } from './productor.dto';
 
 @ApiTags('productor')
 @Controller('productor')
@@ -35,7 +35,14 @@ export class ProductorController {
     return this.productorService.remove(userId);
   }
   @Post('/registrar')
-  async create(@Body() productorDto: ProductorDTO) {
+  async create(@Body() productorDto: CreateProductorDTO) {
     return await this.productorService.create(productorDto);
+  }
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductorDto: CreateProductorDTO,
+  ): Promise<string | undefined> {
+    return this.productorService.update(Number(id), updateProductorDto);
   }
 }

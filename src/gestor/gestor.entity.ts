@@ -21,7 +21,7 @@ export class Gestor {
   @Column()
   direccion: string;
 
-  @Column({ type: 'boolean', default: true }) // Estado por defecto a true
+  @Column({ type: 'boolean', default: true }) 
   estado: boolean;
 
   @Column()

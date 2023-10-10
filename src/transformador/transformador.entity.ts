@@ -39,7 +39,7 @@ export class Transformador {
   @Column()
   periodo: string;
 
-  @Column({ type: 'boolean'}) // registro_anla por defecto a false
+  @Column({ type: 'boolean'}) 
   registro_anla: boolean;
 
   @Column({ type: 'bigint', nullable: true })

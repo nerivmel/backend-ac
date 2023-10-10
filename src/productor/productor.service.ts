@@ -55,10 +55,13 @@ export class ProductorService {
         );
       }
 
-      return 'productor registrado con éxito';
+      const newProductor = this.productorRepository.create(createProductorDto);
+      await this.productorRepository.save(newProductor);
+
+      return 'Productor registrado con éxito';
     } catch (error) {
       throw new HttpException(
-        'error al registrar productor correo o nit duplicados',
+        'Error al registrar productor. Correo o nit duplicados.',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -66,10 +69,17 @@ export class ProductorService {
 
   async update(
     id: number,
-    productorData: Partial<Productor>,
-  ): Promise<Productor | undefined> {
-    await this.productorRepository.update(id, productorData);
-    return await this.productorRepository.findOne({ where: { id } });
+    createProductorDto: CreateProductorDTO,
+  ): Promise<string> {
+    try {
+      await this.productorRepository.update(id, createProductorDto);
+      return 'Productor modificado con éxito';
+    } catch (error) {
+      throw new HttpException(
+        'Error al actualizar el Productor.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   async remove(id: number): Promise<void> {

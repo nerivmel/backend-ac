@@ -1,13 +1,13 @@
 /* eslint-disable prettier/prettier */
-// create-transformador.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-export class CreateTransformadorDto {
+
+export class TransformadorCreateDTO {
   @ApiProperty()
   razon_social: string;
 
   @ApiProperty()
   representante_legal: string;
-  
+
   @ApiProperty()
   nit: number;
 
@@ -39,5 +39,5 @@ export class CreateTransformadorDto {
   registro_anla: boolean;
 
   @ApiProperty()
-  numero_certificado: number | null;
+  numero_certificado: number;
 }
