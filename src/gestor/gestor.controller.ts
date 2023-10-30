@@ -6,15 +6,18 @@ import {
   Delete,
   Param,
   Body,
+  //UseGuards,
 } from '@nestjs/common';
 import { GestorService } from './gestor.service';
 import { Gestor } from './gestor.entity';
 import { CreateGestorDTO } from './create.gestor.dto';
+//import { LocalAuthGuard } from 'src/auth/local-auth.guards';
 
 @Controller('gestor')
 export class GestorController {
   constructor(private readonly gestorService: GestorService) {}
 
+  //@UseGuards(LocalAuthGuard)
   @Get()
   async findAll(): Promise<Gestor[]> {
     return this.gestorService.findAll();
