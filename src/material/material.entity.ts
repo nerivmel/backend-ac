@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Gestor } from 'src/gestor/gestor.entity';
+import { Transformador } from 'src/transformador/transformador.entity';
 
 @Entity()
 export class Material {
@@ -28,4 +29,8 @@ export class Material {
   @ManyToOne(() => Gestor, (gestor) => gestor.id)
   @JoinColumn({ name: 'gestor_id' })
   gestor: Gestor;
+
+  @ManyToOne(() => Transformador, (transformador) => transformador.id)
+  @JoinColumn({ name: 'transformador_id' })
+  transformador: Transformador;
 }

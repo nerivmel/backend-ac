@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Material } from './material.entity';
 import { CreateMaterialDto } from './create.material.dto';
 import { Gestor } from 'src/gestor/gestor.entity';
+import { Transformador } from 'src/transformador/transformador.entity';
 
 @Injectable()
 export class MaterialService {
@@ -16,6 +17,8 @@ export class MaterialService {
     private materialRepository: Repository<Material>,
     @InjectRepository(Gestor)
     private gestorRepository: Repository<Gestor>,
+    @InjectRepository(Transformador)
+    private transformadorRepository: Repository<Gestor>,
   ) {}
 
   async getMaterialesByGestor(gestorId: number): Promise<Material[]> {
@@ -28,8 +31,14 @@ export class MaterialService {
   async createMaterial(
     createMaterialDto: CreateMaterialDto,
   ): Promise<Material> {
-    const { nombre, cantidad, descripcion, fecha_adquirido, gestorId } =
-      createMaterialDto;
+    const {
+      nombre,
+      cantidad,
+      descripcion,
+      fecha_adquirido,
+      gestorId,
+      transformadorId,
+    } = createMaterialDto;
 
     // Verifica si el gestor existe en la base de datos
     const gestor = await this.gestorRepository.findOne({
@@ -40,6 +49,17 @@ export class MaterialService {
       throw new NotFoundException(`El gestor con ID ${gestorId} no existe.`);
     }
 
+    // Verifica si el transformador existe en la base de datos
+    const transformador = await this.transformadorRepository.findOne({
+      where: { id: transformadorId },
+    });
+
+    if (!transformador) {
+      throw new NotFoundException(
+        `El transformador con ID ${transformadorId} no existe.`,
+      );
+    }
+
     // Crea una nueva instancia de Material
     const material = this.materialRepository.create({
       nombre,
@@ -47,6 +67,7 @@ export class MaterialService {
       descripcion,
       fecha_adquirido,
       gestor: gestor, // Asigna el gestor al material
+      transformador: transformador, // Asigna el transformador al material
     });
 
     try {

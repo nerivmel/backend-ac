@@ -1,12 +1,12 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateTransaccionggDto {
+export class CreateTransacciongtDto {
   @ApiProperty()
-  gestorRealizaId: number; 
+  gestorId: number;
 
   @ApiProperty()
-  gestorRecibeId: number; 
+  transformadorId: number;
 
   @ApiProperty()
   materialId: number; 

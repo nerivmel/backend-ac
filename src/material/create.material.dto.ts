@@ -16,4 +16,7 @@ export class CreateMaterialDto {
 
   @ApiProperty()
   gestorId: number;
+
+  @ApiProperty()
+  transformadorId: number;
 }
