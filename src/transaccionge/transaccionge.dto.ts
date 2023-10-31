@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // transaccionge.dto.ts
-
+import { IsNotEmpty } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTransacciongeDto {
@@ -16,6 +16,7 @@ export class CreateTransacciongeDto {
   @ApiProperty()
   archivoImagen: Buffer;
 
+  @IsNotEmpty()
   @ApiProperty()
   gestorId: number;
 

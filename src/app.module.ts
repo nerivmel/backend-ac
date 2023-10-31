@@ -9,11 +9,8 @@ import { ProductorModule } from './productor/productor.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MaterialModule } from './material/material.module';
-import { TransacciongeController } from './transaccionge/transaccionge.controller';
 import { TransacciongeModule } from './transaccionge/transaccionge.module';
-import { TransaccionggService } from './transacciongg/transacciongg.service';
 import { TransaccionggModule } from './transacciongg/transacciongg.module';
-import { TransacciongtController } from './transacciongt/transacciongt.controller';
 import { TransacciongtModule } from './transacciongt/transacciongt.module';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -31,7 +28,7 @@ require('dotenv').config();
     TransaccionggModule,
     TransacciongtModule,
   ],
-  controllers: [AppController, TransacciongeController, TransacciongtController],
-  providers: [AppService, TransaccionggService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -8,10 +8,12 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
+  Get,
 } from '@nestjs/common';
 import { TransacciongeService } from './transaccionge.service';
 import { CreateTransacciongeDto } from './transaccionge.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Transaccionge } from './transaccionge.entity';
 
 @Controller('transaccionge')
 export class TransacciongeController {
@@ -43,5 +45,9 @@ export class TransacciongeController {
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.transacciongeService.deleteTransaccionge(id);
+  }
+  @Get()
+  async getAllTransacciones(): Promise<Transaccionge[]> {
+    return this.transacciongeService.getAllTransacciones();
   }
 }

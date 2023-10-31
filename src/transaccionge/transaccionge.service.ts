@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Transaccionge } from './transaccionge.entity';
 import { Gestor } from 'src/gestor/gestor.entity';
 import { CreateTransacciongeDto } from './transaccionge.dto';
+import { Material } from 'src/material/material.entity';
 
 @Injectable()
 export class TransacciongeService {
@@ -16,6 +17,8 @@ export class TransacciongeService {
     private transacciongeRepository: Repository<Transaccionge>,
     @InjectRepository(Gestor)
     private gestorRepository: Repository<Gestor>,
+    @InjectRepository(Material)
+    private materialRepository: Repository<Material>,
   ) {}
 
   async createTransaccionge(
@@ -31,6 +34,9 @@ export class TransacciongeService {
       entidad_externa,
     } = createTransacciongeDto;
 
+    if (gestorId === undefined) {
+      throw new BadRequestException('El campo gestorId es obligatorio.');
+    }
     const gestor = await this.gestorRepository.findOne({
       where: { id: gestorId },
     });
@@ -38,7 +44,6 @@ export class TransacciongeService {
     if (!gestor) {
       throw new NotFoundException(`El gestor con ID ${gestorId} no existe.`);
     }
-
     const transaccionge = new Transaccionge();
     transaccionge.material = material;
     transaccionge.cantidad = cantidad;
@@ -49,13 +54,29 @@ export class TransacciongeService {
     transaccionge.entidad_externa = entidad_externa;
 
     try {
-      return await this.transacciongeRepository.save(transaccionge);
+      const nuevaTransaccionge =
+        await this.transacciongeRepository.save(transaccionge);
+
+      const nuevoMaterial = new Material();
+      nuevoMaterial.nombre = material;
+      nuevoMaterial.cantidad = cantidad;
+      nuevoMaterial.descripcion = descripcion;
+      nuevoMaterial.fecha_adquirido = fecha;
+      nuevoMaterial.gestor = gestor;
+
+      await this.materialRepository.save(nuevoMaterial);
+
+      return nuevaTransaccionge;
     } catch (error) {
-      throw new BadRequestException('No se pudo crear la transacción.');
+      throw new BadRequestException(
+        'No se pudo crear la transacción o el material.',
+      );
     }
   }
-
   async deleteTransaccionge(id: number): Promise<void> {
     await this.transacciongeRepository.delete(id);
+  }
+  async getAllTransacciones(): Promise<Transaccionge[]> {
+    return this.transacciongeRepository.find();
   }
 }
