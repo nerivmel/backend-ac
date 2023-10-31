@@ -126,6 +126,10 @@ export class TransaccionggService {
     }
   }
   async getAllTransacciones(): Promise<Transacciongg[]> {
-    return this.transaccionggRepository.find();
+    return this.transaccionggRepository
+      .createQueryBuilder('transacciongg')
+      .leftJoinAndSelect('transacciongg.gestorRealiza', 'gestorRealiza')
+      .leftJoinAndSelect('transacciongg.gestorRecibe', 'gestorRecibe')
+      .getMany();
   }
 }

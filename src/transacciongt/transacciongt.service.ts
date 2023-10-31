@@ -110,6 +110,10 @@ export class TransacciongtService {
   }
 
   async getAllTransacciongt(): Promise<Transacciongt[]> {
-    return this.transacciongtRepository.find();
+    return this.transacciongtRepository
+      .createQueryBuilder('transacciongt')
+      .leftJoinAndSelect('transacciongt.gestor', 'gestor')
+      .leftJoinAndSelect('transacciongt.transformador', 'transformador')
+      .getMany();
   }
 }

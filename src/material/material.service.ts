@@ -77,4 +77,7 @@ export class MaterialService {
       throw new BadRequestException('No se pudo crear el material.');
     }
   }
+  async getAllMaterials(): Promise<Material[]> {
+    return this.materialRepository.find();
+  }
 }

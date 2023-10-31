@@ -9,6 +9,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express/multer/interceptors';
 import { CreateTransacciongtDto } from './transacciongt.dto';
 import { TransacciongtService } from './transacciongt.service';
+import { Transacciongt } from './transacciongt.entity';
 
 @Controller('transacciongt')
 export class TransacciongtController {
@@ -36,7 +37,7 @@ export class TransacciongtController {
     return transacciongt;
   }
   @Get()
-  getAllTransacciongt() {
+  async getAllTransacciongt(): Promise<Transacciongt[]> {
     return this.transacciongtService.getAllTransacciongt();
   }
 }

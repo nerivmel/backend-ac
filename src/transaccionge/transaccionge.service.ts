@@ -77,6 +77,9 @@ export class TransacciongeService {
     await this.transacciongeRepository.delete(id);
   }
   async getAllTransacciones(): Promise<Transaccionge[]> {
-    return this.transacciongeRepository.find();
+    return this.transacciongeRepository
+      .createQueryBuilder('transaccionge')
+      .leftJoinAndSelect('transaccionge.gestor', 'gestor')
+      .getMany();
   }
 }
