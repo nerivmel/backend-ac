@@ -15,18 +15,15 @@ export class Transaccion {
 
   @ManyToOne(() => Gestor, (gestor) => gestor.id)
   @JoinColumn({ name: 'gestorRealiza_id' })
-  gestorRealiza: Gestor;
+  gestor_realiza: Gestor;
 
   @ManyToOne(() => Gestor, (gestor) => gestor.id)
   @JoinColumn({ name: 'gestorRecibe_id' })
-  gestorRecibe: Gestor;
+  gestor_recibe: Gestor;
 
   @ManyToOne(() => Transformador, (transformador) => transformador.id)
   @JoinColumn({ name: 'transformador_id' })
   transformador: Transformador;
-
-  @Column()
-  cantidad: number;
 
   @Column('date')
   fecha: Date;
@@ -38,10 +35,13 @@ export class Transaccion {
   archivoPng: string;
 
   @Column({ name: 'nro_anla', nullable: true })
-  nroAnla: string;
+  nro_anla: number;
 
   @Column('text')
-  nroFactura: string;
+  nro_factura: number;
+
+  @Column('text')
+  entidad_externa: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;

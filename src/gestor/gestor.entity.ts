@@ -34,9 +34,6 @@ export class Gestor {
   correo: string;
 
   @Column()
-  toneladas_recolectadas: string;
-
-  @Column()
   puntos_recoleccion: string;
 
   @Column()

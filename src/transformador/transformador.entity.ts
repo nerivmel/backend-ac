@@ -36,9 +36,6 @@ export class Transformador {
   @Column()
   material_produce: string;
 
-  @Column()
-  periodo: string;
-
   @Column({ type: 'boolean'}) 
   registro_anla: boolean;
 

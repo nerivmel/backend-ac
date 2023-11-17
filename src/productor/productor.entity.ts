@@ -20,4 +20,10 @@ export class Productor {
 
   @Column()
   direccion: string;
+
+  @Column()
+  materiales: string;
+
+  @Column()
+  cantidad: number;
 }
