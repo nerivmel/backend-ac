@@ -13,6 +13,7 @@ import { MaterialgestorModule } from './materialgestor/materialgestor.module';
 import { TransaccionModule } from './transaccion/transaccion.module';
 import { TransaccionmaterialModule } from './transaccionmaterial/transaccionmaterial.module';
 import { MaterialTransformadorModule } from './materialtransformador/materialtransformador.module';
+import { MaterialproductorModule } from './materialproductor/materialproductor.module';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -29,6 +30,7 @@ require('dotenv').config();
     TransaccionModule,
     TransaccionmaterialModule,
     MaterialTransformadorModule,
+    MaterialproductorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

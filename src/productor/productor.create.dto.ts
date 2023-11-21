@@ -16,4 +16,10 @@ export class CreateProductorDTO {
 
   @ApiProperty()
   readonly direccion: string;
+
+  @ApiProperty()
+  material: string;
+
+  @ApiProperty()
+  cantidad: string;
 }

@@ -5,7 +5,6 @@ import {
   Param,
   Body,
   Post,
-  Put,
   //Body,
 } from '@nestjs/common';
 import { CreateProductorDTO } from './productor.create.dto';
@@ -25,6 +24,11 @@ export class ProductorController {
   findAll() {
     return this.productorService.findAll();
   }
+
+  @Get('total')
+  async obtenerProductoresConTotales(): Promise<any[]> {
+    return this.productorService.obtenerProductoresConTotales();
+  }
   @Get(':id')
   async findById(@Param('id') id: number) {
     return await this.productorService.findOne(id);
@@ -37,12 +41,5 @@ export class ProductorController {
   @Post('/registrar')
   async create(@Body() productorDto: CreateProductorDTO) {
     return await this.productorService.create(productorDto);
-  }
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateProductorDto: CreateProductorDTO,
-  ): Promise<string | undefined> {
-    return this.productorService.update(Number(id), updateProductorDto);
   }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Body, Post, BadRequestException } from '@nestjs/common';
+import { Controller, Body, Post, BadRequestException, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TransaccionService } from './transaccion.service';
 import { CreateTransaccionDto } from './transaccion.dto';
@@ -19,5 +19,24 @@ export class TransaccionController {
       console.error(error); // Imprime el error en la consola del servidor o registra en los logs.
       throw new BadRequestException('Error al registrar la transacción.');
     }
+  }
+  @Get()
+  async obtenerTodasLasTransacciones(): Promise<Transaccion[]> {
+    return this.transaccionService.obtenerTodasLasTransacciones();
+  }
+
+  @Get('ge')
+  async obtenerTransaccionesGestorRecibeEntidadExterna(): Promise<Transaccion[]> {
+    return this.transaccionService.obtenerTransaccionesGestorRecibeEntidadExterna();
+  }
+
+  @Get('gg')
+  async obtenerTransaccionesGestorRecibeGestorRealiza(): Promise<Transaccion[]> {
+    return this.transaccionService.obtenerTransaccionesGestorRecibeGestorRealiza();
+  }
+
+  @Get('gt')
+  async obtenerTransaccionesGestorRealizaTransformador(): Promise<Transaccion[]> {
+    return this.transaccionService.obtenerTransaccionesGestorRealizaTransformador();
   }
 }

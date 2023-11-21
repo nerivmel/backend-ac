@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { MaterialProductor } from 'src/materialproductor/materialproductor.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class Productor {
@@ -20,10 +21,7 @@ export class Productor {
 
   @Column()
   direccion: string;
-
-  @Column()
-  materiales: string;
-
-  @Column()
-  cantidad: number;
+  
+  @OneToMany(() => MaterialProductor, (materialProductor) => materialProductor.productor)
+  materialProductor: MaterialProductor[];
 }

@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Transaccion } from './transaccion.entity';
 import { CreateTransaccionDto } from './transaccion.dto';
 import { Gestor } from 'src/gestor/gestor.entity';
@@ -9,6 +8,8 @@ import { Transformador } from 'src/transformador/transformador.entity';
 import { Material } from 'src/material/material.entity';
 import { TransaccionMaterial } from 'src/transaccionmaterial/transaccionmaterial.entity';
 import { MaterialGestor } from 'src/materialgestor/materialgestor.entity';
+import { MaterialTransformador } from 'src/materialtransformador/materialtransformador.entity';
+import { IsNull, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class TransaccionService {
@@ -25,6 +26,8 @@ export class TransaccionService {
     private readonly transaccionMaterialRepository: Repository<TransaccionMaterial>,
     @InjectRepository(MaterialGestor)
     private readonly materialGestorRepository: Repository<MaterialGestor>,
+    @InjectRepository(MaterialTransformador)
+    private readonly materialTransformadorRepository: Repository<MaterialTransformador>,
   ) {}
 
   async crearTransaccion(
@@ -82,12 +85,12 @@ export class TransaccionService {
   
       // Separar los materiales y cantidades proporcionados
       const materiales = material.split(',').map((m) => m.trim());
-      const cantidades = cantidad.split(',').map(Number);
+      const cantidades = cantidad.split(',').map(Number); // Convertir a números
   
       // Guardar los registros en la tabla TransaccionMaterial
       for (let i = 0; i < materiales.length; i++) {
         const materialNombre = materiales[i];
-        const cantidad = cantidades[i];
+        const cantidadMaterial = cantidades[i];
   
         // Obtener o crear el material de la base de datos
         let materialEntity = await this.materialRepository.findOne({
@@ -97,12 +100,8 @@ export class TransaccionService {
         if (!materialEntity) {
           materialEntity = new Material();
           materialEntity.nombre = materialNombre;
-          materialEntity.cantidad_total = cantidad; // Iniciar con la cantidad
+          materialEntity.cantidad_total = 0; // Iniciar con 0
           materialEntity.descripcion = '';
-          await this.materialRepository.save(materialEntity);
-        } else {
-          // Sumar la cantidad a cantidad_total en cada transacción
-          materialEntity.cantidad_total += cantidad;
           await this.materialRepository.save(materialEntity);
         }
   
@@ -110,29 +109,113 @@ export class TransaccionService {
         const transaccionMaterial = new TransaccionMaterial();
         transaccionMaterial.transaccion = nuevaTransaccion;
         transaccionMaterial.material = materialEntity;
-        transaccionMaterial.cantidad = cantidad;
+        transaccionMaterial.cantidad = cantidadMaterial;
   
         // Guardar el registro en la base de datos
         await this.transaccionMaterialRepository.save(transaccionMaterial);
   
-        // Verificar si existe un registro en MaterialGestor con el mismo material_id y gestor_id
-        const materialGestorExistente = await this.materialGestorRepository.findOne({
-          where: { material: materialEntity, gestor: gestorRecibe },
-        });
-  
-        if (materialGestorExistente) {
-          // Si existe, sumar la cantidad
-          materialGestorExistente.cantidad += cantidad;
-          await this.materialGestorRepository.save(materialGestorExistente);
+        // Verificar si la transacción es entre gestor_realiza y transformador
+        if (gestorRealiza && transformadorObj) {
+          // Verificar si la cantidad de material en material_gestor es suficiente
+          const materialGestorRealiza = await this.materialGestorRepository.findOne({
+            where: { material: materialEntity, gestor: gestorRealiza },
+          });
+        
+          if (!materialGestorRealiza || materialGestorRealiza.cantidad < cantidadMaterial) {
+            // Si no hay suficiente stock en gestor_realiza, lanzar una excepción
+            throw new BadRequestException(`Stock insuficiente en gestor_realiza para el material: ${materialNombre}`);
+          }
+        
+          // Realizar la resta de la cantidad de material de gestor_realiza
+          materialGestorRealiza.cantidad -= cantidadMaterial;
+        
+          // Guardar la actualización de la cantidad en material_gestor
+          await this.materialGestorRepository.save(materialGestorRealiza);
+        
+          // Verificar si el transformador tiene registros en material_transformador
+          const materialTransformador = await this.materialTransformadorRepository.findOne({
+            where: { material: materialEntity, transformador: transformadorObj },
+          });
+        
+          if (materialTransformador) {
+            // Si transformador tiene registros en material_transformador, sumar la cantidad
+            materialTransformador.cantidad += cantidadMaterial;
+            await this.materialTransformadorRepository.save(materialTransformador);
+          } else {
+            // Si transformador no tiene registros en material_transformador, crear uno nuevo
+            const materialTransformadorNuevo = new MaterialTransformador();
+            materialTransformadorNuevo.material = materialGestorRealiza.material;
+            materialTransformadorNuevo.cantidad = cantidadMaterial;
+            materialTransformadorNuevo.descripcion = ''; // Ajustar según tus necesidades
+            materialTransformadorNuevo.transformador = transformadorObj;
+        
+            await this.materialTransformadorRepository.save(materialTransformadorNuevo);
+          }
+        }
+        
+        // Verificar si la transacción es entre gestor_realiza y gestor_recibe
+        if (gestorRealiza && gestorRecibe) {
+          // Verificar si gestor_realiza tiene suficiente stock
+          const materialGestorRealiza = await this.materialGestorRepository.findOne({
+            where: { material: materialEntity, gestor: gestorRealiza },
+          });
+    
+          if (!materialGestorRealiza || materialGestorRealiza.cantidad < cantidadMaterial) {
+            // Si no hay suficiente stock en gestor_realiza, lanzar una excepción
+            throw new BadRequestException(`Stock insuficiente en gestor_realiza para el material: ${materialNombre}`);
+          }
+    
+          // Descontar la cantidad de material de gestor_realiza
+          materialGestorRealiza.cantidad -= cantidadMaterial;
+          await this.materialGestorRepository.save(materialGestorRealiza);
+    
+          // Verificar si gestor_recibe tiene registros en material_gestor
+          const materialGestorRecibe = await this.materialGestorRepository.findOne({
+            where: { material: materialEntity, gestor: gestorRecibe },
+          });
+    
+          if (materialGestorRecibe) {
+            // Si gestor_recibe tiene registros en material_gestor, sumar la cantidad
+            materialGestorRecibe.cantidad += cantidadMaterial;
+            await this.materialGestorRepository.save(materialGestorRecibe);
+          } else {
+            // Si gestor_recibe no tiene registros en material_gestor, crear uno nuevo
+            const materialGestorNuevo = new MaterialGestor();
+            materialGestorNuevo.material = materialEntity;
+            materialGestorNuevo.gestor = gestorRecibe;
+            materialGestorNuevo.cantidad = cantidadMaterial;
+            materialGestorNuevo.descripcion = ''; // Puedes ajustar esto según tus necesidades
+    
+            await this.materialGestorRepository.save(materialGestorNuevo);
+          }
         } else {
-          // Si no existe, crear un nuevo registro en la tabla MaterialGestor
-          const materialGestorNuevo = new MaterialGestor();
-          materialGestorNuevo.material = materialEntity;
-          materialGestorNuevo.gestor = gestorRecibe;
-          materialGestorNuevo.cantidad = cantidad;
-          materialGestorNuevo.descripcion = ''; // Puedes ajustar esto según tus necesidades
+          // La transacción no es entre gestor_realiza y gestor_recibe
+          
+              // Verificar si la transacción es entre gestor_recibe y entidad_externa
+          if (gestorRecibe && entidad_externa) {
+            // Sumar la cantidad en la tabla materiales
+            materialEntity.cantidad_total += cantidadMaterial;
+            await this.materialRepository.save(materialEntity);
+          }
+          // Verificar si existe un registro en MaterialGestor con el mismo material_id y gestor_id
+          const materialGestorExistente = await this.materialGestorRepository.findOne({
+            where: { material: materialEntity, gestor: gestorRecibe },
+          });
   
-          await this.materialGestorRepository.save(materialGestorNuevo);
+          if (materialGestorExistente) {
+            // Si existe, sumar la cantidad
+            materialGestorExistente.cantidad += cantidadMaterial;
+            await this.materialGestorRepository.save(materialGestorExistente);
+          } else {
+            // Si no existe, crear un nuevo registro en la tabla MaterialGestor
+            const materialGestorNuevo = new MaterialGestor();
+            materialGestorNuevo.material = materialEntity;
+            materialGestorNuevo.gestor = gestorRecibe;
+            materialGestorNuevo.cantidad = cantidadMaterial;
+            materialGestorNuevo.descripcion = ''; // Puedes ajustar esto según tus necesidades
+  
+            await this.materialGestorRepository.save(materialGestorNuevo);
+          }
         }
       }
   
@@ -140,6 +223,28 @@ export class TransaccionService {
     } catch (error) {
       throw new BadRequestException('No se pudo crear la transacción.');
     }
+  }
+  
+  
+  async obtenerTodasLasTransacciones(): Promise<Transaccion[]> {
+    return this.transaccionRepository.find();
+  }
+  async obtenerTransaccionesGestorRecibeEntidadExterna(): Promise<Transaccion[]> {
+    return this.transaccionRepository.find({
+      where: { gestor_recibe: Not(IsNull()), entidad_externa: Not(IsNull()) },
+    });
+  }
+
+  async obtenerTransaccionesGestorRecibeGestorRealiza(): Promise<Transaccion[]> {
+    return this.transaccionRepository.find({
+      where: { gestor_recibe: Not(IsNull()), gestor_realiza: Not(IsNull()) },
+    });
+  }
+
+  async obtenerTransaccionesGestorRealizaTransformador(): Promise<Transaccion[]> {
+    return this.transaccionRepository.find({
+      where: { gestor_realiza: Not(IsNull()), transformador: Not(IsNull()) },
+    });
   }
   
   
