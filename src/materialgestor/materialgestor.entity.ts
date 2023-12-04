@@ -27,4 +27,5 @@ export class MaterialGestor {
   @ManyToOne(() => Gestor, (gestor) => gestor.id)
   @JoinColumn({ name: 'gestor_id' })
   gestor: Gestor;
+
 }

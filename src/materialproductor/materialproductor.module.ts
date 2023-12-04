@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MaterialproductorController } from './materialproductor.controller';
+import { MaterialProductorController } from './materialproductor.controller';
 import { MaterialProductor } from './materialproductor.entity';
-import { MaterialproductorService } from './materialproductor.service';
+import { MaterialProductorService } from './materialproductor.service';
+import { Productor } from 'src/productor/productor.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MaterialProductor])],
-  controllers: [MaterialproductorController],
-  providers: [MaterialproductorService],
-  exports: [MaterialproductorService],
+  imports: [TypeOrmModule.forFeature([MaterialProductor, Productor])],
+  controllers: [MaterialProductorController],
+  providers: [MaterialProductorService],
+  exports: [MaterialProductorService],
 })
 export class MaterialproductorModule {}
