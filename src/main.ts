@@ -7,7 +7,7 @@ async function bootstrap() {
 
   // Configura las opciones de CORS
   app.enableCors({
-    origin: 'http://localhost:3001', // Reemplaza con el origen de tu frontend
+    origin: 'https://residuosyempaques.netlify.app', // Reemplaza con el origen de tu frontend
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Habilita las cookies y encabezados de autorización
   });
