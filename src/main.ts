@@ -12,6 +12,7 @@ async function bootstrap() {
     credentials: true, // Habilita las cookies y encabezados de autorización
   });
 
+  const port = process.env.PORT || 3000;
   await app.listen(3000);
 }
 bootstrap();
